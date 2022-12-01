@@ -135,35 +135,18 @@ weights = [
     4.1683101
 ]
 
-# Padding for AES data.
-def pad_data(data):
-    if len(data) % 16 == 0:
-        return data
-    databytes = bytearray(data)
-    padding_required = 15 - (len(databytes) % 16)
-    databytes.extend(b'\x80')
-    databytes.extend(b'\x00' * padding_required)
-    return bytes(databytes)
-
-def unpad_data(data):
-    if not data:
-        return data
-
-    data = data.rstrip(b'\x00')
-    if data[-1] == 128: # b'\x80'[0]:
-        return data[:-1]
-    else:
-        return data
-
 # Encryption and decryption.
 def encrypt(key, iv, data):
     aes = AES.new(key, AES.MODE_CBC, iv)
     data = data.encode("utf8")
+    length = 16 - (len(data) % 16)
+    data += bytes([length])*length
     return aes.encrypt(data)
 
 def decrypt(key, iv, data):
     aes = AES.new(key, AES.MODE_CBC, iv)
     data = aes.decrypt(data)
+    data = data[:-data[-1]]
     return data.decode("utf8")
 
 # Generate PUF responses.
@@ -180,9 +163,9 @@ challengesReceived = False
 challenges = False
 
 while challengesReceived == False:
-    
+
     # Prompt user for URL and message.
-    print('Enter URL: (ex. http://localhost:3000/challenges)')
+    print('Enter API URL: (ex. http://localhost:3000)')
     url = input()
     print('')
     print('Enter message:')
@@ -191,11 +174,11 @@ while challengesReceived == False:
 
     try:
         # Retrieve challenge.
-        challenges = req.get(url)
+        challenges = req.get(url+'/challenges')
         challenges = challenges.json()
         challengesReceived = True
     except: 
-        print('There was a problem retrieving challenges. Please check your URL and try again...')
+        print('There was a problem retrieving challenges. Please check your URL and try again: make sure there is no trailing slash and is a valid URL.')
 
 # Vars we need to build in order to post a message.
 responses = generateResponses(weights, challenges)
@@ -220,3 +203,15 @@ decryptedMessage = decrypt(keyBytes, iv, cipher)
 print('Message:',decryptedMessage)
 print('')
 print('Sending data to API...')
+
+postdata = {
+    'challenges':challenges,
+    'cipher':cipher,
+    'iv':'iv',
+    'response':response
+}
+
+try:
+    sent = req.post(url+'/message', json=postdata)
+except:
+    print('Problem reaching API, please try again.')
