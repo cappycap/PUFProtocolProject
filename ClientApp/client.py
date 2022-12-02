@@ -206,12 +206,13 @@ print('Sending data to API...')
 
 postdata = {
     'challenges':challenges,
-    'cipher':cipher,
-    'iv':'iv',
-    'response':response
+    'cipher':str(cipher),
+    'iv':str(iv),
+    'response':response.tolist()
 }
 
 try:
     sent = req.post(url+'/message', json=postdata)
+    print('Sent!')
 except:
-    print('Problem reaching API, please try again.')
+    print('Error sending to API.')
