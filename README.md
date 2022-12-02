@@ -1,8 +1,8 @@
 Group Members: Adam Bullard, Don Strong
 
-ALB Link:
+ALB Link: http://ec2co-ecsel-1r13h1vw1h9v0-533578369.us-west-2.elb.amazonaws.com:3000
 
-Most challenging part of assignment:
+Most challenging part of assignment: 
 
 Buggy features:
 

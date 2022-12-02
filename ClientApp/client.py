@@ -165,7 +165,7 @@ challenges = False
 while challengesReceived == False:
 
     # Prompt user for URL and message.
-    print('Enter API URL: (ex. http://localhost:3000)')
+    print('Enter API URL. Our API: http://ec2co-ecsel-1r13h1vw1h9v0-533578369.us-west-2.elb.amazonaws.com:3000')
     url = input()
     print('')
     print('Enter message:')
