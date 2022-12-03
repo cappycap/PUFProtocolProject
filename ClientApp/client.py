@@ -213,6 +213,11 @@ postdata = {
 
 try:
     sent = req.post(url+'/message', json=postdata)
+    print('')
     print('Sent!')
+    print('Please visit this page to view your message (may take a few seconds):')
+    print('')
+    print(url+'/message')
+    print('')
 except:
     print('Error sending to API.')

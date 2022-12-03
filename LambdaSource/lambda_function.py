@@ -29,32 +29,19 @@ def decrypt(key, iv, data):
 
 # Main function.
 def lambda_handler(event, context):
-    # Create SQS client.
-    sqs = boto3.client('sqs')
-    
-    queue_url = 'https://sqs.us-west-2.amazonaws.com/241992735641/PUF_msg_queue'
-    
-    # Receive message from SQS queue.
-    response = sqs.receive_message(
-        QueueUrl=queue_url,
-        MaxNumberOfMessages=3,
-        WaitTimeSeconds=2
-    )
-
-    print('response:')
-    print(response)
-
-    print(f"Number of messages received: {len(response['Messages'])}")
 
     # Get PUF weights from dynamodb.
     dynamodb = boto3.resource("dynamodb")
     weightTable = dynamodb.Table('PUF_model_table')
     weightTableResponse = weightTable.scan()
     weightTableResponseData = weightTableResponse['Items']
-        
-    for messageInit in response['Messages']:
-        receipt_handle = messageInit['ReceiptHandle'] # For deleting message later.
-        message = messageInit['Body']
+
+    # Receive message from SQS queue.
+    for record in event['Records']:
+        message = record['body']
+        print('message:')
+        print(message)
+
         message = json.loads(message)
         
         # Everything we need from the message body.
@@ -102,14 +89,8 @@ def lambda_handler(event, context):
                         'message':potentialMessage
                     }
                 )
-                
-                print('Message added to DynamoDB.')
 
-        # Delete received message from queue.
-        sqs.delete_message(
-            QueueUrl=queue_url,
-            ReceiptHandle=receipt_handle
-        )
+                print('Message added to DynamoDB.')
 
     return {
         'statusCode': 200,
