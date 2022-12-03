@@ -206,8 +206,8 @@ print('Sending data to API...')
 
 postdata = {
     'challenges':challenges,
-    'cipher':str(cipher),
-    'iv':str(iv),
+    'cipher':cipher.hex(),
+    'iv':iv.hex(),
     'response':response.tolist()
 }
 
